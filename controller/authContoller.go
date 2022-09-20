@@ -2,14 +2,11 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 	"goweb/database"
 	"goweb/models"
 	"goweb/util"
 	"net/http"
 )
-
-const passwordCost = 14
 
 func Register(c *gin.Context) {
 	var user models.User
@@ -17,8 +14,10 @@ func Register(c *gin.Context) {
 		panic(err)
 	}
 
-	hashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), passwordCost)
-	user.Password = string(hashPassword)
+	//hashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), passwordCost)
+	//user.Password = string(hashPassword)
+
+	user.SetPassword(user.Password)
 
 	database.DB.Create(&user)
 
@@ -43,7 +42,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(data.Password)); err != nil {
+	if err := user.ComparePassword(data.Password); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Incorrect username or password",
 		})
@@ -52,18 +51,6 @@ func Login(c *gin.Context) {
 
 	// util.GenerateJwt(id, name) id : 1, name : "jwt"
 	token, err := util.GenerateJwt(1, "jwt")
-
-	/*
-		// todo claim 改一下里面的内容；改完以后记得修改 User里面的jwt.Parse
-		claims := &jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
-			Issuer:    strconv.Itoa(user.ID),
-		}
-
-		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-		signedToken, err := token.SignedString([]byte(SigningKey))
-	*/
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

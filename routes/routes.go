@@ -21,10 +21,18 @@ func SetRoutes() *gin.Engine {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
+	// todo  记得给别的route添加 middleware
 	r.POST("/register", controller.Register)
 	r.POST("/login", controller.Login)
+
+	// 有 cookie 的时候 ?
 	r.GET("/user", middleware.IsAuthenticated(), controller.User)
 	r.POST("/logout", controller.Logout)
+	r.GET("/users", controller.AllUsers)
+	r.GET("/users/:id", controller.GetUser)
+	r.PUT("/users/:id", controller.UpdateUser)
+	r.DELETE("/users/:id", controller.DeleteUser)
+
 	v1Group := r.Group("/v1")
 	{
 		// POST 新建
