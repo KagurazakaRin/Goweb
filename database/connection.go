@@ -23,7 +23,7 @@ func Connect() {
 		panic("migrate failed")
 	}
 
-	err = DB.AutoMigrate(&models.User{}) // gorm创建的table会是TodoLists，多一个"s"
+	err = DB.AutoMigrate(&models.User{}, &models.Role{}) // gorm创建的table会是TodoLists，多一个"s"
 	if err != nil {
 		panic("migrate failed")
 	}

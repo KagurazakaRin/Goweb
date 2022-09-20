@@ -26,10 +26,18 @@ func SetRoutes() *gin.Engine {
 	r.GET("/user", middleware.IsAuthenticated(), controller.User)
 
 	r.POST("/logout", controller.Logout)
+
 	r.GET("/users", controller.AllUsers)
+	r.POST("/users", controller.CreateUser)
 	r.GET("/users/:id", controller.GetUser)
 	r.PUT("/users/:id", controller.UpdateUser)
 	r.DELETE("/users/:id", controller.DeleteUser)
+
+	r.GET("/roles", controller.AllRoles)
+	r.POST("/roles", controller.CreateRole)
+	r.GET("/roles/:id", controller.GetRole)
+	r.PUT("/roles/:id", controller.UpdateRole)
+	r.DELETE("/roles/:id", controller.DeleteRole)
 
 	v1Group := r.Group("/v1")
 	{

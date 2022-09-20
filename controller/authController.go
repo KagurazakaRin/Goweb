@@ -14,15 +14,11 @@ func Register(c *gin.Context) {
 		panic(err)
 	}
 
-	//hashPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), passwordCost)
-	//user.Password = string(hashPassword)
+	user.RoleID = 1
 
 	user.SetPassword(user.Password)
-
 	database.DB.Create(&user)
-
 	c.JSON(http.StatusOK, user)
-
 }
 
 func Login(c *gin.Context) {
