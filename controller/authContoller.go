@@ -51,7 +51,7 @@ func Login(c *gin.Context) {
 	}
 
 	// util.GenerateJwt(id, name) id : 1, name : "jwt"
-	token, err := util.GenerateJwt(1)
+	token, err := util.GenerateJwt(1, "jwt")
 
 	/*
 		// todo claim 改一下里面的内容；改完以后记得修改 User里面的jwt.Parse
