@@ -39,9 +39,11 @@ func SetRoutes() *gin.Engine {
 	//r.PUT("/roles/:id", controller.UpdateRole)
 	//r.DELETE("/roles/:id", controller.DeleteRole)
 
-	r.GET("/todo", controller.AllTodos)
 	todolist := r.Group("/v1")
+	todolist.Use(middleware.IsAuthenticated())
 	{
+		todolist.GET("/todo", controller.AllTodos)
+
 		todolist.POST("/todo", controller.CreateTodo)
 
 		todolist.PUT("/todo/:id", controller.UpdateTodo)

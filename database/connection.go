@@ -18,12 +18,7 @@ func Connect() {
 		panic("Could not connect to the database")
 	}
 
-	err = DB.AutoMigrate(&models.TodoList{}) // gorm创建的table会是TodoLists，多一个"s"
-	if err != nil {
-		panic("migrate failed")
-	}
-
-	err = DB.AutoMigrate(&models.User{}, &models.Role{}) // gorm创建的table会是TodoLists，多一个"s"
+	err = DB.AutoMigrate(&models.TodoList{}, &models.User{})
 	if err != nil {
 		panic("migrate failed")
 	}

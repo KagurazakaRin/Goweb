@@ -18,5 +18,4 @@ func IsAuthenticated() gin.HandlerFunc {
 		}
 		c.Next()
 	}
-
 }

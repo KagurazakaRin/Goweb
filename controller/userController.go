@@ -54,7 +54,7 @@ func GetUser(c *gin.Context) {
 	user := models.User{
 		ID: userID,
 	}
-	database.DB.Preload("Role").Find(&user)
+	database.DB.Find(&user)
 	c.JSON(http.StatusOK, user)
 }
 

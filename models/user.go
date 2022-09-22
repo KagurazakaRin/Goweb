@@ -7,8 +7,8 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email" gorm:"unique"`
 	Password string `json:"password"` // `json:"-"`
-	RoleID   int    `json:"role_id"`
-	Role     Role   `json:"role" gorm:"foreignKey:RoleID"`
+	//RoleID   int    `json:"role_id"`
+	//Role     Role   `json:"role" gorm:"foreignKey:RoleID"`
 }
 
 const passwordCost = 14

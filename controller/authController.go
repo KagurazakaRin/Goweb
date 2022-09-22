@@ -17,8 +17,6 @@ func Register(c *gin.Context) {
 		panic(err)
 	}
 
-	user.RoleID = 1
-
 	user.SetPassword(user.Password)
 	database.DB.Create(&user)
 	c.JSON(http.StatusOK, user)
