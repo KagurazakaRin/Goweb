@@ -8,6 +8,9 @@ import (
 	"net/http"
 )
 
+const localhost = "127.0.0.1:8080"
+const cookieDuration = 3600 * 60 // 24h
+
 func Register(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBind(&user); err != nil {
@@ -28,16 +31,17 @@ func Login(c *gin.Context) {
 	}
 
 	result := database.DB.Where("email = ?", data.Email).First(&user)
-	// 如果在数据库中无法找到该email，（email唯一）
+
 	// result.RowsAffected表示返回找到的记录数
 	if result.RowsAffected == 0 {
 		c.JSON(http.StatusNotFound, gin.H{
 			"message": "the user not found",
-			"info":    user,
+			"info":    user.ID,
 		})
 		return
 	}
 
+	// 比较密码
 	if err := user.ComparePassword(data.Password); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "Incorrect username or password",
@@ -45,39 +49,34 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// util.GenerateJwt(id, name) id : 1, name : "jwt"
-	token, err := util.GenerateJwt(1, "jwt")
-
+	// Set JWT and cookie
+	token, err := util.GenerateJwt(user.ID, user.Name)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-			"msg":   "JWT created failed",
+			"msg": "JWT created failed",
 		})
 	}
 
-	_, err = c.Cookie("jwt")
-	if err != nil {
-		//cookie = "NotSet"
-		localhost := "127.0.0.1:8080"
-		c.SetCookie("jwt", token, 3600*60, "/", localhost, false, true)
+	cookie, err := c.Cookie("jwt")
+	if cookie != "" {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "success",
+			"message": "User is logged in",
+		})
+	} else if len(cookie) == 0 {
+		c.SetCookie("jwt", token, cookieDuration, "/", localhost, false, true)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User log in success",
+		})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
 		})
 	}
-
-	// SetCookie(name string, value string, maxAge int, path string, domain string, secure bool, httpOnly bool)
-	// MaxAge设置为-1，表示删除cookie; 默认好像是GMT时间，伦敦
-	c.JSON(http.StatusOK, user)
-	c.JSON(http.StatusOK, gin.H{
-		"signedToken": token,
-	})
-
 }
 
 func User(c *gin.Context) {
-	//fmt.Println("get user")
-
 	// todo middleware
+
 	cookie, err := c.Cookie("jwt")
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -97,7 +96,8 @@ func User(c *gin.Context) {
 	database.DB.Where("id = ?", userID).First(&user)
 
 	c.JSON(http.StatusOK, gin.H{
-		"claim": user,
+		"ID":       user.ID,
+		"username": user.Name,
 	})
 }
 
@@ -105,6 +105,6 @@ func Logout(c *gin.Context) {
 	localhost := "127.0.0.1:8080"
 	c.SetCookie("jwt", "", -1, "/", localhost, false, true)
 	c.JSON(http.StatusOK, gin.H{
-		"message": "success",
+		"message": "user is logged out",
 	})
 }

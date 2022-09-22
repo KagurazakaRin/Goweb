@@ -18,37 +18,35 @@ func SetRoutes() *gin.Engine {
 		c.HTML(http.StatusOK, "index.html", nil)
 	})
 
-	// todo  记得给别的route添加 middleware
 	r.POST("/register", controller.Register)
 	r.POST("/login", controller.Login)
-
-	// 有 cookie 的时候 ?
-	r.GET("/user", middleware.IsAuthenticated(), controller.User)
-
 	r.POST("/logout", controller.Logout)
-
 	r.GET("/users", controller.AllUsers)
-	r.POST("/users", controller.CreateUser)
-	r.GET("/users/:id", controller.GetUser)
-	r.PUT("/users/:id", controller.UpdateUser)
-	r.DELETE("/users/:id", controller.DeleteUser)
 
-	r.GET("/roles", controller.AllRoles)
-	r.POST("/roles", controller.CreateRole)
-	r.GET("/roles/:id", controller.GetRole)
-	r.PUT("/roles/:id", controller.UpdateRole)
-	r.DELETE("/roles/:id", controller.DeleteRole)
-
-	v1Group := r.Group("/v1")
+	authed := r.Group("/")
+	authed.Use(middleware.IsAuthenticated())
 	{
-		v1Group.POST("/todo", controller.CreateTodo)
+		authed.GET("user", controller.User)
+		authed.POST("users", controller.CreateUser)
+		authed.GET("users/:id", controller.GetUser)
+		authed.PUT("users/:id", controller.UpdateUser)
+		authed.DELETE("users/:id", controller.DeleteUser)
+	}
 
-		// todo 改成 "todo/:id"
-		v1Group.GET("/todo", controller.AllTodos)
+	//r.GET("/roles", controller.AllRoles)
+	//r.POST("/roles", controller.CreateRole)
+	//r.GET("/roles/:id", controller.GetRole)
+	//r.PUT("/roles/:id", controller.UpdateRole)
+	//r.DELETE("/roles/:id", controller.DeleteRole)
 
-		v1Group.PUT("/todo/:id", controller.UpdateTodo)
+	r.GET("/todo", controller.AllTodos)
+	todolist := r.Group("/v1")
+	{
+		todolist.POST("/todo", controller.CreateTodo)
 
-		v1Group.DELETE("/todo/:id", controller.DeleteTodo)
+		todolist.PUT("/todo/:id", controller.UpdateTodo)
+
+		todolist.DELETE("/todo/:id", controller.DeleteTodo)
 
 	}
 

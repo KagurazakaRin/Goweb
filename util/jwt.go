@@ -6,30 +6,25 @@ import (
 	"time"
 )
 
+const SigningKey = "allBaseKey"
+
 type CustomClaims struct {
 	ID       int    `json:"id"`
 	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-const SigningKey = "allBaseKey"
-const TokenExpireDuration = time.Hour * 24
-
 func GenerateJwt(id int, username string) (string, error) {
-	// todo claim 改一下里面的内容；改完以后记得修改 User里面的jwt.Parse
+	expireDuration := time.Now().Add(time.Hour * 24)
 	claims := CustomClaims{
 		ID:       id,
 		Username: username,
+		//Authority: authority,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
+			ExpiresAt: jwt.NewNumericDate(expireDuration),
 			Issuer:    "todoLister",
 		},
 	}
-
-	//claims := &jwt.RegisteredClaims{
-	//	ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExpireDuration)),
-	//	Issuer:    strconv.Itoa(id),
-	//}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -37,22 +32,19 @@ func GenerateJwt(id int, username string) (string, error) {
 	return signedToken, err
 }
 
-// ParseJwt todo  return string? or int ?
 func ParseJwt(cookie string) (string, error) {
-	//token, err := jwt.Parse(cookie, func(token *jwt.Token) (i interface{}, err error) {
-	//	return []byte(SigningKey), nil
-	//})
 
-	token, err := jwt.ParseWithClaims(cookie, &CustomClaims{}, func(token *jwt.Token) (i interface{}, err error) {
+	token, err := jwt.ParseWithClaims(cookie, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(SigningKey), nil
 	})
 
-	if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
-		// claims.RegisteredClaims.Issuer
-		return strconv.Itoa(claims.ID), nil
-	} else {
-		return strconv.Itoa(0), err
+	if token != nil {
+		if claims, ok := token.Claims.(*CustomClaims); ok && token.Valid {
+			return strconv.Itoa(claims.ID), nil
+		}
 	}
+
+	return "", err
 
 	/*
 		if token.Valid {

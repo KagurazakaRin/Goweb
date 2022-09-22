@@ -16,8 +16,7 @@ func AllRoles(c *gin.Context) {
 	c.JSON(http.StatusOK, role)
 }
 
-// CreateRole the difference between create user and register ?
-// todo create 和 update 中 创建权限 permission 功能
+// CreateRole todo create 和 update 中 创建权限 permission 功能
 func CreateRole(c *gin.Context) {
 	var role models.Role
 

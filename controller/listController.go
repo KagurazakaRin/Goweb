@@ -16,15 +16,12 @@ func CreateTodo(c *gin.Context) {
 
 	if err := database.DB.Create(&todo).Error; err != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"code":    2000, // todo UPDATE magic num
-			"message": "failed",
-			"data":    todo,
+			"message": "failed to create todo",
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"code":    20001, // todo UPDATE magic num
-			"message": "success",
-			"error":   err,
+			"id":      todo.ID,
+			"message": "Successfully created",
 		})
 	}
 }
@@ -48,16 +45,20 @@ func UpdateTodo(c *gin.Context) {
 	result := database.DB.Where("id = ?", id).First(&todo)
 	if result.Error != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"error": result.Error,
+			"error message": "Not found this todo id",
 		})
 		return
 	}
 
-	err := c.ShouldBind(&todo)
-
-	c.JSON(http.StatusOK, gin.H{
-		"error": err,
-	})
+	if err := c.ShouldBind(&todo); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"error message": "bind failed",
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Updated todo",
+		})
+	}
 
 	database.DB.Model(&todo).Updates(map[string]interface{}{"id": todo.ID, "Title": todo.Title, "status": todo.Status})
 }
@@ -68,11 +69,11 @@ func DeleteTodo(c *gin.Context) {
 	result := database.DB.Where("id = ?", id).Delete(&models.TodoList{})
 	if result.Error != nil {
 		c.JSON(http.StatusOK, gin.H{
-			"error": result.Error,
+			"error message": "Not found this todo id",
 		})
 	} else {
 		c.JSON(http.StatusOK, gin.H{
-			"id": "Delete",
+			"id": "The todo deleted",
 		})
 	}
 }

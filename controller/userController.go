@@ -19,11 +19,11 @@ func AllUsers(c *gin.Context) {
 	database.DB.Preload("Role").Offset(offset).Limit(limit).Find(&user)
 	database.DB.Model(&models.User{}).Count(&total)
 	c.JSON(http.StatusOK, gin.H{
-		"data": user,
+		"user": user,
 		"meta": gin.H{
 			"total":     total,
 			"page":      page,
-			"last_page": math.Ceil(float64(int(total) / limit)),
+			"last_page": math.Ceil(float64(total) / float64(limit)),
 		},
 	})
 }
