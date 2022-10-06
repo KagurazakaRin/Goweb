@@ -20,6 +20,7 @@ func SetRoutes() *gin.Engine {
 
 	r.POST("/register", controller.Register)
 	r.POST("/login", controller.Login)
+	r.GET("/default", controller.Default)
 	r.POST("/logout", controller.Logout)
 	r.GET("/users", controller.AllUsers)
 

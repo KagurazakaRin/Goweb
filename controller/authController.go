@@ -106,3 +106,29 @@ func Logout(c *gin.Context) {
 		"message": "user is logged out",
 	})
 }
+
+func Default(c *gin.Context) {
+	defaultID, defaultName := 123456789, "123456789"
+	token, err := util.GenerateJwt(defaultID, defaultName)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "JWT created failed",
+		})
+	}
+
+	cookie, err := c.Cookie("jwt")
+	if cookie != "" {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User is logged in",
+		})
+	} else if len(cookie) == 0 {
+		c.SetCookie("jwt", token, cookieDuration, "/", localhost, false, true)
+		c.JSON(http.StatusOK, gin.H{
+			"message": "User log in success",
+		})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+	}
+}
